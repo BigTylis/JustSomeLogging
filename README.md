@@ -1,4 +1,6 @@
-![Screenshot](icon.png)
+<p align="center">
+    <img src="icon-v2.png" alt="icon"/>
+</p>
 
 # Overview
 
@@ -135,3 +137,7 @@ public readonly struct LogObject : ILogObject
 ```
 
 _You can make your own ILogObject to expand upon context storage if this is not enough._
+
+## Support
+
+JSL is built on Netstandard 2.0, so it can work [just about anywhere](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0#tabpanel_1_net-standard-2-0). JSL doesn't have any platform specific restrictions.
