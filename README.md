@@ -1,3 +1,5 @@
+![Screenshot](icon.png)
+
 # Overview
 
 JustSomeLogging (JSL) is an incredibly simple logging library for C#. Its built as a framework for you to implement logging your own way, without worrying about the abstract structural details. JSL is designed to revolve around the following 
