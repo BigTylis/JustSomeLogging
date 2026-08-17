@@ -7,6 +7,8 @@
 JustSomeLogging (JSL) is an incredibly simple logging library for C#. Its built as a framework for you to implement logging your own way, without worrying about the abstract structural details. JSL is designed to revolve around the following 
 pattern: Source -> Handler -> Sink. Dont want to design your own? You can use the pre-built ready to go implementations! If you do want to design your own, the pre-built types provide an excellent reference for how you should structure your design.
 
+TLDR just let me install: [go to install](https://github.com/BigTylis/JustSomeLogging/blob/main/README.md#installation)
+
 ## Why JSL?
 
 * Dead-simple configuration
