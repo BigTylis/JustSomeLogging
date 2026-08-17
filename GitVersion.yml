@@ -1,16 +1,15 @@
-increment: None
 branches:
     main:
-        label: ''
+        mode: ContinuousDelivery
+        tag: ''
         increment: None
-        prevent-increment:
-            of-merged-branch: true
+        prevent-increment-of-merged-branch-version: true
         track-merge-target: false
-        track-merge-message: true
-        regex: "^master$|^main$"
-        source-branches: []
-        is-source-branch-for: []
+        regex: ^master$|^main$
+        source-branches:
+            - develop
+            - release
         tracks-release-branches: false
         is-release-branch: false
-        is-main-branch: true
-        pre-release-weight: 55000    
+        is-mainline: true
+        pre-release-weight: 55000
