@@ -5,7 +5,6 @@ pattern: Source -> Handler -> Sink. Dont want to design your own? You can use th
 
 ## Why JSL?
 
-_Do you want..._
 * Dead-simple configuration
 * Entire control flow in your hands
 * Small learning curve
@@ -37,9 +36,8 @@ Compatible with [MessagePack](https://github.com/MessagePack-CSharp/MessagePack-
 
 # Quick Start
 
-Working with LogHandlers
+Getting the default LogHandler
 ```c#
-// Obtain a default LogHandler
 var handler = new LogHandler();
 // or
 var handler = LogHandler.Instance;
@@ -48,10 +46,90 @@ var handler = LogHandler.Instance;
 Configuring the default LogHandler
 ```c#
 // LogHandler has one configuration
-var handler = new LogHandler().HookToProcessExit(); // <-- HookToProcessExit adds an event hook to AppDomain.Current.ProcessExit, which will call Dispose() on the handler
+var handler = new LogHandler().HookToProcessExit();
+
+// HookToProcessExit adds an event hook to AppDomain.Current.ProcessExit,
+// which will call Dispose() on the handler
 
 // By default, this singleton version always uses HookToProcessExit()
 var handler = LogHandler.Instance;
 
 // Why Dispose like this? Disposing the LogHandler here will halt the exit until all logs are flushed to their sinks
 ```
+
+Create a log source
+```c#
+var source = new StdLogger()
+{
+    Handler = handler, // Specify our handler here, OR leave null to use the singleton default LogHandler
+};
+```
+
+Now add some sinks
+```c#
+// A sink that routes to console
+var consoleSink = new DebugConsoleSink()
+{
+    Formatter = DefaultFormatter.Instance
+};
+
+// A sink that routes to various file destinations per source
+var fileSink = new FileSink()
+{
+    BufferedCountBeforeFlush = 100, // How many logs must be buffered before flushing the underlying streams
+    FlushToDisk = true,
+
+    FileMappings = [new FileSink.Source2FileMapping
+    {
+        FileName = "C:\\MyFile.txt",
+        SourceName = nameof(StdLogger), // You want the ILogSource.Name here, which is this case is the type name
+        Encoding = System.Text.Encoding.Unicode // Defaults to UTF8 if not specified
+    }],
+
+    Formatter = null // No formatter means singleton instance of DefaultFormatter
+}.HookToProcessExit(); // File sink uses its own thread, and therefore can also be hooked to exit to flush
+
+// Tip: You can interweave multiple source's logs into a single file if you want
+// but for this example I just do one source one file
+```
+
+Add the desired sinks to your source instance
+```c#
+source.Sinks = [consoleSink, fileSink];
+```
+
+And run!
+```c#
+// This log will be sent to both the debug console, and to the file buffering thread to be saved
+source.Info("Hello world!");
+```
+
+# Details
+
+## What actually can a log object store?
+
+Since logs in JSL are not just strings, additional context can be captured, formatted, and serialized.
+
+LogObject uses the following implementation:
+```c#
+[DataContract]
+public readonly struct LogObject : ILogObject
+{
+    [DataMember(Name = "src")] required public ILogSource Source { get; init; }
+    [DataMember(Name = "msg")] required public string Message { get; init; }
+    [DataMember(Name = "time")] required public DateTime Timestamp { get; init; }
+    [DataMember(Name = "ll")] required public LogLevel LogLevel { get; init; }
+    [DataMember(Name = "thr")] public string? ThreadName { get; init; }
+    [DataMember(Name = "ex")] public Exception? Exception { get; init; }
+    public StackFrame? StackFrame { get; }
+    [DataMember(Name = "stkfs")] public string? StackFrameString { get; }
+
+    public LogObject(StackFrame? stackFrame = null)
+    {
+        StackFrame = stackFrame;
+        StackFrameString = stackFrame?.ToString();
+    }
+}
+```
+
+_You can make your own ILogObject to expand upon context storage if this is not enough._
