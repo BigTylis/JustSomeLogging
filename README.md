@@ -141,3 +141,28 @@ _You can make your own ILogObject to expand upon context storage if this is not 
 ## Support
 
 JSL is built on Netstandard 2.0, so it can work [just about anywhere](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0#tabpanel_1_net-standard-2-0). JSL doesn't have any platform specific restrictions.
+
+## Installation 
+
+### Get it on NuGet:
+
+Use the command:
+
+```ps1
+dotnet package add JustSomeLogging
+```
+
+![NuGet Version](https://img.shields.io/nuget/v/JustSomeLogging)
+
+### Or from the releases (Github releases also include the PDB!):
+
+Add a reference to the DLL
+
+![GitHub Release](https://img.shields.io/github/v/release/BigTylis/JustSomeLogging)
+
+---
+
+[![GitHub All Releases](https://img.shields.io/github/downloads/BigTylis/JustSomeLogging/total.svg?label="Github%20Downloads")](https://github.com/BigTylis/JustSomeLogging/releases)
+![NuGet Downloads](https://img.shields.io/nuget/dt/JustSomeLogging?label="NuGet%20Downloads"&color="blue")
+![GitHub Repo stars](https://img.shields.io/github/stars/BigTylis/JustSomeLogging)
+
