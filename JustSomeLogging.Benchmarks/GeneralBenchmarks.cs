@@ -1,8 +1,10 @@
 ﻿using BenchmarkDotNet.Attributes;
 using JSL.Benchmarks.Sinks;
 using JSL.Logging;
+using JSL.Logging.Handlers;
 using JSL.Logging.Loggers;
 using Microsoft.Extensions.Logging;
+using JSL.Extensions;
 
 namespace JSL.Benchmarks;
 
@@ -11,108 +13,64 @@ namespace JSL.Benchmarks;
 [DisassemblyDiagnoser(printSource: true)]
 public class GeneralBenchmarks
 {
-    // ----- Source Side ----- //
-    private StdLogger SourceSide_source;
-    [GlobalSetup(Targets = [nameof(Log_SourceSide_Full), nameof(Log_SourceSide_RawLogCall)])]
-    public void Setup_SourceSide()
+    private ILogSource Benchmark_Log_EnqueueOnly_Source = null;
+    private LogHandler Benchmark_Log_EnqueueOnly_Handler = null;
+    [GlobalSetup(Targets = [nameof(Log_EnqueueOnly)])]
+    public void Log_EnqueueOnly_Setup()
     {
-        SourceSide_source = new()
+        Benchmark_Log_EnqueueOnly_Handler = new();
+        Benchmark_Log_EnqueueOnly_Source = new StdLogger()
         {
-            Sinks = [new NullSink()]
+            Handler = Benchmark_Log_EnqueueOnly_Handler
         };
     }
-
-    // ----- Sink Side ----- //
-    private ILogSource SinkSide_source;
-    private ILogSink SinkSide_sink;
-    private LogObject SinkSide_PremadeLog;
-    [GlobalSetup(Targets = [nameof(Log_SinkSide)])]
-    public void Setup_SinkSide()
+    [GlobalCleanup(Targets = [nameof(Log_EnqueueOnly)])]
+    public void Log_EnqueueOnly_Cleanup()
     {
-        SinkSide_source = new StdLogger();
-        SinkSide_sink = new NullSink();
-        SinkSide_PremadeLog = new()
+        Benchmark_Log_EnqueueOnly_Handler.Dispose();
+    }
+
+
+    private LogHandler Benchmark_Log_EndToEnd_Throughput_Handler = null;
+    private ILogSource Benchmark_Log_EndToEnd_Throughput_Source = null;
+    private ManualResetEventSlim Benchmark_Log_EndToEnd_Throughput_MRE = null;
+    private ILogSink Benchmark_Log_EndToEnd_Throughput_Sink = null;
+
+    [GlobalSetup(Targets = [nameof(Log_EndToEnd_Throughput)])]
+    public void Log_EndToEnd_Throughput_Setup()
+    {
+        Benchmark_Log_EndToEnd_Throughput_Handler = new LogHandler();
+        Benchmark_Log_EndToEnd_Throughput_MRE = new();
+        Benchmark_Log_EndToEnd_Throughput_Sink = new CounterSink(Benchmark_Log_EndToEnd_Throughput_MRE, 50000);
+        Benchmark_Log_EndToEnd_Throughput_Source = new StdLogger()
         {
-            LogLevel = LogLevel.Information,
-            Message = "",
-            Provider = SinkSide_source,
-            Timestamp = DateTime.Now,
-            ThreadName = "mythread",
-            Exception = null
+            Handler = Benchmark_Log_EndToEnd_Throughput_Handler,
+            Sinks = [Benchmark_Log_EndToEnd_Throughput_Sink]
         };
     }
-
-    // ----- Round Trip ----- //
-    private ManualResetEventSlim RoundTrip_resetEvent;
-    private ILogSource RoundTrip_source;
-    private ILogSink RoundTrip_sink;
-    [IterationSetup(Targets = [nameof(Log_RoundTrip)])]
-    public void Setup_RoundTrip()
+    [GlobalCleanup(Targets = [nameof(Log_EndToEnd_Throughput)])]
+    public void Log_EndToEnd_Throughput_Cleanup()
     {
-        RoundTrip_resetEvent = new();
-        RoundTrip_sink = new CounterSink(RoundTrip_resetEvent, 1);
-        RoundTrip_source = new StdLogger() { Sinks = [RoundTrip_sink] };
+        Benchmark_Log_EndToEnd_Throughput_Handler.Dispose();
+        Benchmark_Log_EndToEnd_Throughput_MRE.Dispose();
     }
-    [IterationCleanup(Targets = [nameof(Log_RoundTrip)])]
-    public void Cleanup_RoundTrip()
-    {
-        RoundTrip_resetEvent.Dispose();
-    }
-
-    private ManualResetEventSlim HighThroughput_resetEvent;
-    private ILogSource HighThroughput_source;
-    private ILogSink HighThroughput_sink;
-    [IterationSetup(Targets = [nameof(Log_HighThroughput)])]
-    public void Setup_HighThroughput()
-    {
-        HighThroughput_resetEvent = new();
-        HighThroughput_sink = new CounterSink(HighThroughput_resetEvent, 50000);
-        HighThroughput_source = new StdLogger() { Sinks = [HighThroughput_sink] };
-    }
-    [IterationCleanup(Targets = [nameof(Log_HighThroughput)])]
-    public void Cleanup_HighThroughput()
-    {
-        HighThroughput_resetEvent.Dispose();
-    }
-
-    //
-    //
 
     [Benchmark(Baseline = true)]
     public void Empty() { }
 
     [Benchmark]
-    public void Log_SourceSide_Full()
+    public void Log_EnqueueOnly()
     {
-        SourceSide_source.LogInformation("hello world!");
-    }
-
-    [Benchmark]
-    public void Log_SourceSide_RawLogCall()
-    {
-        SourceSide_source.Log<object?>(LogLevel.Information, default, null, null, (state, ex) => "");
-    }
-
-    [Benchmark]
-    public void Log_SinkSide()
-    {
-        SinkSide_sink.Route(SinkSide_PremadeLog);
-    }
-
-    [Benchmark]
-    public void Log_RoundTrip()
-    {
-        RoundTrip_source.LogInformation("hello world!");
-        RoundTrip_resetEvent.Wait();
+        Benchmark_Log_EnqueueOnly_Source.Info("Hello world!");
     }
 
     [Benchmark(OperationsPerInvoke = 50000)]
-    public void Log_HighThroughput()
+    public void Log_EndToEnd_Throughput()
     {
-        for(int i = 0; i < 50000; i++)
+        for (int i = 0; i < 50000; i++)
         {
-            HighThroughput_source.LogInformation("hello world!");
+            Benchmark_Log_EndToEnd_Throughput_Source.Info("Hello world!");
         }
-        HighThroughput_resetEvent.Wait();
+        Benchmark_Log_EndToEnd_Throughput_MRE.Wait();
     }
 }

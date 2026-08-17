@@ -1,4 +1,7 @@
-﻿namespace JSL.Logging;
+﻿// Copyright (c) 2026, BigTylis
+// SPDX-License-Identifier: BSD-3-Clause
+
+namespace JSL.Logging;
 
 /// <summary>
 /// Define a new logging sink
@@ -14,5 +17,5 @@ public interface ILogSink
     /// Define logic as to where this log is sent.
     /// </summary>
     /// <remarks>Execution context is defined by the utilized <see cref="ILogHandler"/>, so you may need additional synchronization mechanisms to support multi-threaded log handlers</remarks>
-    public void Route(LogObject log);
+    public void Route(ILogObject log);
 }

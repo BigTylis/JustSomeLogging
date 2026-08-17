@@ -1,4 +1,7 @@
-﻿using JSL.Logging.Formatters;
+﻿// Copyright (c) 2026, BigTylis
+// SPDX-License-Identifier: BSD-3-Clause
+
+using JSL.Logging.Formatters;
 using System.Text;
 using System.Threading.Channels;
 
@@ -12,7 +15,7 @@ public class FileSink : ILogSink, IDisposable, IAsyncDisposable
     private static UTF8Encoding DefaultEncoding = new(encoderShouldEmitUTF8Identifier: false);
 
     protected virtual ILogFormatter formatter { get; set; } = DefaultFormatter.Instance;
-    public virtual ILogFormatter Formatter
+    public virtual ILogFormatter? Formatter
     {
         get => formatter;
         set
@@ -37,14 +40,14 @@ public class FileSink : ILogSink, IDisposable, IAsyncDisposable
     virtual required public int BufferedCountBeforeFlush { get; init; } = 50;
 
     protected virtual TaskCompletionSource<bool> flushCompleteEvent { get; } = new(false);
-    protected virtual Channel<LogObject> fileChannel { get; } = Channel.CreateUnbounded<LogObject>(new UnboundedChannelOptions
+    protected virtual Channel<ILogObject> fileChannel { get; } = Channel.CreateUnbounded<ILogObject>(new UnboundedChannelOptions
     {
         SingleReader = true
     });
     protected virtual Dictionary<string, FileStream> pathToStreamMappings { get; } = [];
     protected virtual Dictionary<string, List<StreamWriter>> sourceToWriterMappings { get; } = [];
     protected virtual List<StreamWriter> allWriters { get; } = [];
-    protected virtual List<LogObject> receivedBufferedLogs { get; } = [];
+    protected virtual List<ILogObject> receivedBufferedLogs { get; } = [];
 
     public FileSink() => Setup();
 
@@ -58,10 +61,10 @@ public class FileSink : ILogSink, IDisposable, IAsyncDisposable
                 if (!pathToStreamMappings.ContainsKey(mapping.FileName))
                     pathToStreamMappings.Add(mapping.FileName, new FileStream(mapping.FileName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite));
 
-                if (!sourceToWriterMappings.ContainsKey(mapping.ProviderName))
-                    sourceToWriterMappings.Add(mapping.ProviderName, []);
+                if (!sourceToWriterMappings.ContainsKey(mapping.SourceName))
+                    sourceToWriterMappings.Add(mapping.SourceName, []);
 
-                var writersCollection = sourceToWriterMappings[mapping.ProviderName];
+                var writersCollection = sourceToWriterMappings[mapping.SourceName];
                 var writer = new StreamWriter(pathToStreamMappings[mapping.FileName], mapping.Encoding ?? DefaultEncoding);
                 writersCollection.Add(writer);
 
@@ -70,7 +73,7 @@ public class FileSink : ILogSink, IDisposable, IAsyncDisposable
 
             await foreach(var log in fileChannel.Reader.ReadAllAsync())
             {
-                if(sourceToWriterMappings.ContainsKey(log.Provider.Name)) receivedBufferedLogs.Add(log);
+                if(sourceToWriterMappings.ContainsKey(log.Source.Name)) receivedBufferedLogs.Add(log);
                 if (receivedBufferedLogs.Count >= BufferedCountBeforeFlush) emptyBuffer();
             }
 
@@ -79,7 +82,7 @@ public class FileSink : ILogSink, IDisposable, IAsyncDisposable
         });
     }
 
-    public virtual void Route(LogObject log) => fileChannel.Writer.TryWrite(log);
+    public virtual void Route(ILogObject log) => fileChannel.Writer.TryWrite(log);
 
     /// <summary>
     /// Chain method to auto dispose/flush this sink on <see cref="AppDomain.ProcessExit"/>
@@ -97,7 +100,7 @@ public class FileSink : ILogSink, IDisposable, IAsyncDisposable
             var bufferedLog = receivedBufferedLogs[i];
             string formatted = Formatter.Format(bufferedLog);
 
-            var writers = sourceToWriterMappings[bufferedLog.Provider.Name];
+            var writers = sourceToWriterMappings[bufferedLog.Source.Name];
             for (int ii = 0; ii < writers.Count; ii++)
             {
                 var writer = writers[ii];
@@ -131,9 +134,9 @@ public class FileSink : ILogSink, IDisposable, IAsyncDisposable
     public readonly struct Source2FileMapping
     {
         /// <summary>
-        /// Name of the provider whos logs will be sent to the file specified
+        /// Name of the source whos logs will be sent to the file specified
         /// </summary>
-        required public string ProviderName { get; init; }
+        required public string SourceName { get; init; }
         required public string FileName { get; init; }
         /// <summary>
         /// Default UTF8

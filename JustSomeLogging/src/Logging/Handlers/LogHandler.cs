@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) 2026, BigTylis
+// SPDX-License-Identifier: BSD-3-Clause
+
+using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Channels;
@@ -15,7 +18,7 @@ public class LogHandler : ILogHandler, IDisposable, IAsyncDisposable
     /// Shared singleton instance
     /// </summary>
     public static readonly LogHandler Instance = new LogHandler().HookToProcessExit();
-    public virtual Channel<LogObject> LoggingChannel { get; } = Channel.CreateUnbounded<LogObject>(new UnboundedChannelOptions()
+    public virtual Channel<ILogObject> LoggingChannel { get; } = Channel.CreateUnbounded<ILogObject>(new UnboundedChannelOptions()
     {
         SingleReader = true
     });
@@ -33,9 +36,9 @@ public class LogHandler : ILogHandler, IDisposable, IAsyncDisposable
         {
             await foreach (var log in LoggingChannel.Reader.ReadAllAsync())
             {
-                for (int i = 0; i < log.Provider.Sinks.Length; i++)
+                for (int i = 0; i < log.Source.Sinks.Length; i++)
                 {
-                    var sink = log.Provider.Sinks[i];
+                    var sink = log.Source.Sinks[i];
                     try
                     {
                         sink.Route(log);
@@ -50,7 +53,7 @@ public class LogHandler : ILogHandler, IDisposable, IAsyncDisposable
         });
     }
 
-    public virtual void Dump(LogObject log) => LoggingChannel.Writer.TryWrite(log);
+    public virtual void Dump(ILogObject log) => LoggingChannel.Writer.TryWrite(log);
 
     /// <summary>
     /// Chain method to auto dispose/flush this handler on <see cref="AppDomain.ProcessExit"/>

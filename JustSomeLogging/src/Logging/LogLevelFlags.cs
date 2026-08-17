@@ -1,4 +1,7 @@
-﻿namespace JSL.Logging;
+﻿// Copyright (c) 2026, BigTylis
+// SPDX-License-Identifier: BSD-3-Clause
+
+namespace JSL.Logging;
 
 /// <summary>
 /// Defines logging severity levels (as flags).

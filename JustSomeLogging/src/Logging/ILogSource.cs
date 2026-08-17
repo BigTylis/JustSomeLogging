@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// Copyright (c) 2026, BigTylis
+// SPDX-License-Identifier: BSD-3-Clause
+
+using Microsoft.Extensions.Logging;
 using JSL.Logging.Handlers;
 
 namespace JSL.Logging;

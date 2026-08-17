@@ -1,4 +1,7 @@
-﻿using JSL.Logging.Formatters;
+﻿// Copyright (c) 2026, BigTylis
+// SPDX-License-Identifier: BSD-3-Clause
+
+using JSL.Logging.Formatters;
 using System.Diagnostics;
 
 namespace JSL.Logging.Sinks;
@@ -11,7 +14,7 @@ public class DebugConsoleSink : ILogSink
     [ThreadStatic] internal static bool SuppressDebugCapture = false;
 
     protected virtual ILogFormatter formatter { get; set; } = DefaultFormatter.Instance;
-    public virtual ILogFormatter Formatter
+    public virtual ILogFormatter? Formatter
     {
         get => formatter;
         set
@@ -21,7 +24,7 @@ public class DebugConsoleSink : ILogSink
         }
     }
 
-    public virtual void Route(LogObject log)
+    public virtual void Route(ILogObject log)
     {
 #if DEBUG
         string formatted = DefaultFormatter.Instance.Format(log);

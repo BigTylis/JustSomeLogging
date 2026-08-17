@@ -1,4 +1,7 @@
-﻿using System.Threading.Channels;
+﻿// Copyright (c) 2026, BigTylis
+// SPDX-License-Identifier: BSD-3-Clause
+
+using System.Threading.Channels;
 
 namespace JSL.Logging;
 
@@ -11,5 +14,5 @@ public interface ILogHandler
     /// <summary>
     /// Define how this handler manages logs it recieves.
     /// </summary>
-    public void Dump(LogObject log);
+    public void Dump(ILogObject log);
 }

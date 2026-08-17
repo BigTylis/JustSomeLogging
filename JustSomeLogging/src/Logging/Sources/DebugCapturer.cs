@@ -1,4 +1,7 @@
-﻿using JSL.Logging.Handlers;
+﻿// Copyright (c) 2026, BigTylis
+// SPDX-License-Identifier: BSD-3-Clause
+
+using JSL.Logging.Handlers;
 using JSL.Logging.Sinks;
 using Microsoft.Extensions.Logging;
 using System;
@@ -20,7 +23,7 @@ public class DebugCapturer : TraceListener, ILogSource
 
 
     protected ILogHandler handler = LogHandler.Instance;
-    public virtual ILogHandler Handler
+    public virtual ILogHandler? Handler
     {
         get => handler;
         set
@@ -59,7 +62,7 @@ public class DebugCapturer : TraceListener, ILogSource
             {
                 LogLevel = LogLevel.Information,
                 Message = built,
-                Provider = this,
+                Source = this,
                 Timestamp = time,
                 ThreadName = thread,
                 Exception = null
@@ -71,7 +74,7 @@ public class DebugCapturer : TraceListener, ILogSource
         {
             LogLevel = LogLevel.Information,
             Message = message,
-            Provider = this,
+            Source = this,
             Timestamp = time,
             ThreadName = thread,
             Exception = null

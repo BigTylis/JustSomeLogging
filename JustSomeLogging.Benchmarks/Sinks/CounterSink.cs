@@ -18,7 +18,7 @@ public class CounterSink : ILogSink
         requiredCount = neededCount;
     }
 
-    public void Route(LogObject log)
+    public void Route(ILogObject log)
     {
         Counted++;
         if(Counted >= requiredCount) ResetEvent.Set();

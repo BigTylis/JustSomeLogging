@@ -1,4 +1,7 @@
-﻿using JSL.Extensions;
+﻿// Copyright (c) 2026, BigTylis
+// SPDX-License-Identifier: BSD-3-Clause
+
+using JSL.Extensions;
 using System.Text;
 using System.Threading;
 
@@ -12,7 +15,7 @@ public class DefaultFormatter : ILogFormatter
     public static readonly DefaultFormatter Instance = new();
 
     protected virtual ThreadLocal<StringBuilder> stringBuilder { get; } = new(() => new StringBuilder());
-    public virtual string Format(LogObject log)
+    public virtual string Format(ILogObject log)
     {
         var builder = stringBuilder.Value;
         builder.Clear();
@@ -22,7 +25,7 @@ public class DefaultFormatter : ILogFormatter
         builder.Append(log.LogLevel.ToStringShorten());
         builder.Append("] ");
         builder.Append("[");
-        builder.Append(log.Provider.Alias);
+        builder.Append(log.Source.Alias);
         builder.Append("]");
 
         if(log.ThreadName != null)
