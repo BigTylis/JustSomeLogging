@@ -160,7 +160,7 @@ dotnet package add JustSomeLogging
 
 Add a reference to the DLL
 
-![GitHub Release](https://img.shields.io/github/v/release/BigTylis/JustSomeLogging)
+[![GitHub Release](https://img.shields.io/github/v/release/BigTylis/JustSomeLogging)](https://github.com/BigTylis/JustSomeLogging/releases)
 
 ---
 
