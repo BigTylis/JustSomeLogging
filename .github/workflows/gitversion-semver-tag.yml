@@ -39,5 +39,5 @@ jobs:
           TAG_NAME="v${{ steps.gitversion.outputs.semVer }}"
 
           echo "Generating and pushing tag: $TAG_NAME"
-          git tag $TAG_NAME
+          git tag -a "$TAG_NAME" -m "Automated tag versioning"
           git push origin $TAG_NAME
