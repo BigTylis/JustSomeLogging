@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '.github/workflows/**'
 
 jobs:
   tag-release:
@@ -18,13 +20,13 @@ jobs:
           fetch-depth: 0
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v4.7.0
+        uses: gittools/actions/gitversion/setup@v3.x
         with:
           versionSpec: '5.12.0'
 
       - name: Calculate Version
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v4.7.0
+        uses: gittools/actions/gitversion/execute@v3.x
         with:
           useConfigFile: true
 
