@@ -156,7 +156,7 @@ dotnet package add JustSomeLogging
 
 [![NuGet Version](https://img.shields.io/nuget/v/JustSomeLogging)](https://www.nuget.org/packages/JustSomeLogging/)
 
-### Or from the releases (Github releases also include the PDB!):
+### Or from the releases:
 
 Add a reference to the DLL
 
