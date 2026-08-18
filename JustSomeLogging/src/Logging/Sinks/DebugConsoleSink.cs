@@ -24,15 +24,17 @@ public class DebugConsoleSink : ILogSink
         }
     }
 
-    public virtual void Route(ILogObject log)
+    public virtual void Route(ILogObject log) => RouteConditional(log);
+
+    [Conditional("DEBUG")]
+    protected virtual void RouteConditional(ILogObject log)
     {
-#if DEBUG
         string formatted = DefaultFormatter.Instance.Format(log);
 
         SuppressDebugCapture = true;
         Debug.WriteLine(formatted);
+        Console.WriteLine(formatted);
         SuppressDebugCapture = false;
-#endif
     }
 
     public readonly struct DebugCaptureSuppressionScope : IDisposable
