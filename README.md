@@ -35,7 +35,7 @@ Microsoft.Extensions.Logging.ILogger
 ```
 so it should be generally compatibly with most other logging systems.
 
-Compatible with [MessagePack](https://github.com/MessagePack-CSharp/MessagePack-CSharp) via the DataContract attribute.
+Serialization compatability with [MessagePack](https://github.com/MessagePack-CSharp/MessagePack-CSharp) via the DataContract attribute.
 
 
 
