@@ -3,7 +3,6 @@
 
 using JSL.Extensions;
 using System.Text;
-using System.Threading;
 
 namespace JSL.Logging.Formatters;
 
@@ -24,15 +23,15 @@ public class DefaultFormatter : ILogFormatter
         builder.Append(" [");
         builder.Append(log.LogLevel.ToStringShorten());
         builder.Append("] ");
-        builder.Append("[");
+        builder.Append('[');
         builder.Append(log.Source.Alias);
-        builder.Append("]");
+        builder.Append(']');
 
         if(log.ThreadName != null)
         {
             builder.Append(" [");
             builder.Append(log.ThreadName);
-            builder.Append("]");
+            builder.Append(']');
         }
 
         builder.Append(" - ");
@@ -42,7 +41,7 @@ public class DefaultFormatter : ILogFormatter
         {
             builder.Append("\n     Trace: ");
             builder.Append(log.Exception.ToString());
-            builder.Append("\n");
+            builder.Append('\n');
         }
 
         return builder.ToString();

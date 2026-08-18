@@ -3,7 +3,6 @@ using JSL.Logging.Sinks;
 using JSL.Extensions;
 using System.Diagnostics;
 using JSL.Logging.Handlers;
-using JSL.Logging.Formatters;
 
 Thread.CurrentThread.Name = "MainThread";
 
@@ -12,24 +11,20 @@ var handler = new LogHandler().HookToProcessExit();
 
 // sinks
 var consoleSink = new DebugConsoleSink();
+string processDir = Path.GetDirectoryName(Environment.ProcessPath)!;
 var fileSink = new FileSink()
 {
     BufferedCountBeforeFlush = 100,
     FlushToDisk = true,
     FileMappings = [new FileSink.Source2FileMapping()
     {
-        FileName = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "mylog.txt"),
-        SourceName = nameof(StdLogger)
+        SourceNames = [nameof(StdLogger), nameof(DebugCapturer)],
+        FileNames = [Path.Combine(processDir, "mylog.txt"), Path.Combine(processDir, "mylogcopy.txt")]
     },
     new FileSink.Source2FileMapping()
     {
-        FileName = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "mylog.txt"),
-        SourceName = nameof(DebugCapturer)
-    },
-    new FileSink.Source2FileMapping()
-    {
-        FileName = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "debugcaptureonly.txt"),
-        SourceName = nameof(DebugCapturer),
+        SourceNames = [nameof(DebugCapturer)],
+        FileNames = [Path.Combine(processDir, "debugcaptureonly.txt")],
     }],
 }.HookToProcessExit();
 

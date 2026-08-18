@@ -58,17 +58,24 @@ public class FileSink : ILogSink, IDisposable, IAsyncDisposable
         {
             foreach (var mapping in FileMappings)
             {
-                if (!pathToStreamMappings.ContainsKey(mapping.FileName))
-                    pathToStreamMappings.Add(mapping.FileName, new FileStream(mapping.FileName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite));
+                foreach(var filename in mapping.FileNames)
+                {
+                    if (!pathToStreamMappings.ContainsKey(filename))
+                        pathToStreamMappings.Add(filename, new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.ReadWrite));
+                }
+                foreach(var sourcename in mapping.SourceNames)
+                {
+                    if (!sourceToWriterMappings.ContainsKey(sourcename))
+                        sourceToWriterMappings.Add(sourcename, []);
 
-                if (!sourceToWriterMappings.ContainsKey(mapping.SourceName))
-                    sourceToWriterMappings.Add(mapping.SourceName, []);
-
-                var writersCollection = sourceToWriterMappings[mapping.SourceName];
-                var writer = new StreamWriter(pathToStreamMappings[mapping.FileName], mapping.Encoding ?? DefaultEncoding);
-                writersCollection.Add(writer);
-
-                allWriters.Add(writer);
+                    var writersCollection = sourceToWriterMappings[sourcename];
+                    foreach(var filename in mapping.FileNames)
+                    {
+                        var writer = new StreamWriter(pathToStreamMappings[filename], mapping.Encoding ?? DefaultEncoding);
+                        writersCollection.Add(writer);
+                        allWriters.Add(writer);
+                    }
+                }
             }
 
             await foreach(var log in fileChannel.Reader.ReadAllAsync())
@@ -98,7 +105,7 @@ public class FileSink : ILogSink, IDisposable, IAsyncDisposable
         for (int i = 0; i < receivedBufferedLogs.Count; i++)
         {
             var bufferedLog = receivedBufferedLogs[i];
-            string formatted = Formatter.Format(bufferedLog);
+            string formatted = Formatter!.Format(bufferedLog);
 
             var writers = sourceToWriterMappings[bufferedLog.Source.Name];
             for (int ii = 0; ii < writers.Count; ii++)
@@ -124,20 +131,24 @@ public class FileSink : ILogSink, IDisposable, IAsyncDisposable
     {
         fileChannel.Writer.TryComplete();
         flushCompleteEvent.Task.Wait();
+        foreach(var kvp in pathToStreamMappings) kvp.Value.Dispose();
     }
     public virtual async ValueTask DisposeAsync()
     {
         fileChannel.Writer.TryComplete();
         await flushCompleteEvent.Task;
+        foreach (var kvp in pathToStreamMappings) kvp.Value.Dispose();
     }
 
     public readonly struct Source2FileMapping
     {
+        [Obsolete("Use SourceNames instead. This is no longer functional")] public string SourceName { get; init; }
+        [Obsolete("Use FileNames instead. This is no longer functional")] public string FileName { get; init; }
         /// <summary>
-        /// Name of the source whos logs will be sent to the file specified
+        /// Sources whos logs will be sent to the files specified
         /// </summary>
-        required public string SourceName { get; init; }
-        required public string FileName { get; init; }
+        required public string[] SourceNames { get; init; }
+        required public string[] FileNames { get; init; }
         /// <summary>
         /// Default UTF8
         /// </summary>
