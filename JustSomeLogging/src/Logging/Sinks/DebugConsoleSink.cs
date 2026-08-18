@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2026, BigTylis
 // SPDX-License-Identifier: BSD-3-Clause
 
+#define DEBUG // keep in RouteConditional and Debug.Writeline to let the consuming assembly decide
+
 using JSL.Logging.Formatters;
 using System.Diagnostics;
 
@@ -33,7 +35,6 @@ public class DebugConsoleSink : ILogSink
 
         SuppressDebugCapture = true;
         Debug.WriteLine(formatted);
-        Console.WriteLine(formatted);
         SuppressDebugCapture = false;
     }
 
