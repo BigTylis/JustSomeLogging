@@ -17,6 +17,8 @@
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageIcon>icon-v2.png</PackageIcon>
 	  <PackageTags>log;logging;netstandard2.0;windows;linux;mac;</PackageTags>
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	  <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
