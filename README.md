@@ -96,7 +96,7 @@ var fileSink = new FileSink()
     FileMappings = [new FileSink.Source2FileMapping
     {
         FileName = "C:\\MyFile.txt",
-        SourceName = nameof(StdLogger), // You want the ILogSource.Name here, which is this case is the type name
+        SourceName = nameof(StdLogger), // You want the ILogSource.Name here, which in this case is the type name
         Encoding = System.Text.Encoding.Unicode // Defaults to UTF8 if not specified
     }],
 
