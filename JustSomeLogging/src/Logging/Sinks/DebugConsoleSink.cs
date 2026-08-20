@@ -1,15 +1,13 @@
 ﻿// Copyright (c) 2026, BigTylis
 // SPDX-License-Identifier: BSD-3-Clause
 
-#define DEBUG // keep in RouteConditional and Debug.Writeline to let the consuming assembly decide
-
 using JSL.Logging.Formatters;
 using System.Diagnostics;
 
 namespace JSL.Logging.Sinks;
 
 /// <summary>
-/// A sink that routes logs to the debug console
+/// A sink that routes logs to the debug console. <see cref="LoggingConfiguration.EnableDebugConsoleSink"/> must be enabled for this to output logs!
 /// </summary>
 public class DebugConsoleSink : ILogSink
 {
@@ -26,16 +24,15 @@ public class DebugConsoleSink : ILogSink
         }
     }
 
-    public virtual void Route(ILogObject log) => RouteConditional(log);
-
-    [Conditional("DEBUG")]
-    protected virtual void RouteConditional(ILogObject log)
+    public virtual void Route(ILogObject log)
     {
-        string formatted = DefaultFormatter.Instance.Format(log);
-
-        SuppressDebugCapture = true;
-        Debug.WriteLine(formatted);
-        SuppressDebugCapture = false;
+        if (LoggingConfiguration.EnableDebugConsoleSink)
+        {
+            string formatted = Formatter!.Format(log);
+            SuppressDebugCapture = true;
+            Trace.WriteLine(formatted);
+            SuppressDebugCapture = false;
+        }
     }
 
     public readonly struct DebugCaptureSuppressionScope : IDisposable

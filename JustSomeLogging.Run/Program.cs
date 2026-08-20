@@ -3,8 +3,11 @@ using JSL.Logging.Sinks;
 using JSL.Extensions;
 using System.Diagnostics;
 using JSL.Logging.Handlers;
+using JSL;
 
 Thread.CurrentThread.Name = "MainThread";
+
+LoggingConfiguration.EnableDebugConsoleSink = true;
 
 // handlers
 var handler = new LogHandler().HookToProcessExit();
