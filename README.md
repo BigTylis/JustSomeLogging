@@ -73,6 +73,14 @@ var source = new StdLogger()
 
 Now add some sinks
 ```c#
+#if DEBUG
+        // Required for DebugConsoleSink to work.
+        // This configuration is off by default!
+        LoggingConfiguration.EnableDebugConsoleSink = true;
+#else
+        LoggingConfiguration.EnableDebugConsoleSink = false;
+#endif
+
 // A sink that routes to console
 var consoleSink = new DebugConsoleSink()
 {
