@@ -31,6 +31,8 @@ public class StdLogger : ILogSource
 
     public virtual void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
+        if (!IsEnabled(logLevel)) return;
+
         var time = DateTime.Now;
         string? thread = Thread.CurrentThread.Name;
         string message = formatter(state, exception);

@@ -31,8 +31,7 @@ public class LogHandler : ILogHandler, IDisposable, IAsyncDisposable
 
     public virtual void Initialize()
     {
-        var taskFactory = new TaskFactory(TaskCreationOptions.LongRunning, TaskContinuationOptions.None);
-        taskFactory.StartNew(async () =>
+        Task.Run(async () =>
         {
             await foreach (var log in LoggingChannel.Reader.ReadAllAsync())
             {

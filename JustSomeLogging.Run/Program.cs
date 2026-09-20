@@ -46,12 +46,7 @@ var std = new StdLogger()
 
 // test
 Debug.WriteLine("capture me");
-for (int i = 0; i < 1000; i++)
+for (int i = 0; i < 100; i++)
 {
     std.Warn($"log #{i}");
-}
-
-using(new DebugConsoleSink.DebugCaptureSuppressionScope())
-{
-    Debug.WriteLine("finished calling warn");
 }
