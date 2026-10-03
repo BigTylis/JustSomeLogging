@@ -46,6 +46,10 @@ var std = new StdLogger()
 
 // test
 Debug.WriteLine("capture me");
+using(new DebugConsoleSink.DebugCaptureSuppressionScope())
+{
+    Debug.WriteLine("dont capture me");
+}
 for (int i = 0; i < 100; i++)
 {
     std.Warn($"log #{i}");

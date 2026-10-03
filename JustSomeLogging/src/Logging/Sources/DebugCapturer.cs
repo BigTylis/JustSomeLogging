@@ -4,10 +4,8 @@
 using JSL.Logging.Handlers;
 using JSL.Logging.Sinks;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Diagnostics;
 using System.Text;
-using System.Threading;
 
 namespace JSL.Logging.Loggers;
 
@@ -35,9 +33,9 @@ public class DebugCapturer : TraceListener, ILogSource
 
     protected virtual ThreadLocal<StringBuilder> partialBuilder { get; } = new(() => new StringBuilder());
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) { throw new NotSupportedException($"{nameof(DebugCapturer)} is not to be logged to manually."); }
-    public bool IsEnabled(LogLevel logLevel) => true;
-    public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+    public virtual void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) { throw new NotSupportedException($"{nameof(DebugCapturer)} is not to be logged to manually."); }
+    public virtual bool IsEnabled(LogLevel logLevel) => true;
+    public virtual IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
 
     public override void Write(string? message)
     {
@@ -47,7 +45,7 @@ public class DebugCapturer : TraceListener, ILogSource
 
     public override void WriteLine(string? message)
     {
-        if (DebugConsoleSink.SuppressDebugCapture) return; // prevent potential stack overflow from DebugConsoleSink
+        if (DebugConsoleSink.IsDebugCaptureSuppressed()) return; // prevent potential stack overflow from DebugConsoleSink
 
         var time = DateTime.Now;
         string? thread = Thread.CurrentThread.Name;

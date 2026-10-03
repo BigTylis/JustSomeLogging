@@ -35,6 +35,11 @@ public class DebugConsoleSink : ILogSink
         }
     }
 
+    /// <summary>
+    /// Check if debug capturing is currently suppressed in this scope on the current thread.
+    /// </summary>
+    public static bool IsDebugCaptureSuppressed() => SuppressDebugCapture;
+
     public readonly struct DebugCaptureSuppressionScope : IDisposable
     {
         public DebugCaptureSuppressionScope() => SuppressDebugCapture = true;
